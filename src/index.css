@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #031E14;
+    color: #FFFDF5;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  h1, h2, h3, .font-serif-royal {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #062C1E;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D97706;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F59E0B;
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  background: rgba(10, 56, 37, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(253, 230, 138, 0.15);
+}
+
+.glass-panel-gold {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(10, 56, 37, 0.85) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.glass-card {
+  background: rgba(6, 44, 30, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.2);
+}
+
+/* Onam Gold Glow */
+.gold-glow {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.4);
+}
+
+.gold-glow-text {
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.pookalam-pattern {
+  background-image: radial-gradient(rgba(245, 158, 11, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
