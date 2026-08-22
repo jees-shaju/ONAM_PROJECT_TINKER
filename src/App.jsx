@@ -4,6 +4,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
 import { WhileYouWereAway } from './components/WhileYouWereAway';
 import { FinalDaySummary } from './components/FinalDaySummary';
+import { AiGuideChatbot } from './components/AiGuideChatbot';
 import { Home } from './pages/Home';
 import { Discover } from './pages/Discover';
 import { MyDay } from './pages/MyDay';
@@ -46,6 +47,9 @@ function AppContent() {
       {/* Sticky Onam Header Navbar */}
       <Navbar />
 
+      {/* Draggable Cute Floating Kili AI Assistant Chatbot */}
+      <AiGuideChatbot />
+
       {/* Page Routing */}
       <main className="flex-1 pb-20 md:pb-12">
         <Routes>
@@ -63,12 +67,12 @@ function AppContent() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-lg">👑</span>
-            <span className="font-serif font-bold text-cream-100">MAVELI — FIND MY NEXT MEMORY</span>
+            <span className="font-serif font-bold text-cream-100">MAVELI 24H — KERALA ONAM VAULT 2026</span>
           </div>
           <p className="italic text-gold-300/90">
-            "PEOPLE &gt; PLACES • EXPERIENCES &gt; ITINERARIES • MEMORIES &gt; DESTINATIONS"
+            "14 DISTRICTS • 24 HOURS • UNLIMITED MEMORIES BACKEND VAULT"
           </p>
-          <p className="text-[11px]">Onam Mini-Hackathon 2026 • Track 02</p>
+          <p className="text-[11px]">Onam Hackathon MVP • Track 02</p>
         </div>
       </footer>
 
