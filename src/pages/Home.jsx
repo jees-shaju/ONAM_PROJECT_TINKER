@@ -106,10 +106,9 @@ export function Home() {
           </div>
         </div>
 
-        {/* Right Maveli Standalone Avatar (No Background Box) */}
+        {/* Right Maveli Standalone Avatar */}
         <div className="shrink-0">
           <Maveli
-            expression="happy"
             message="Welcome! Exploring all 14 districts across Kerala in 24 hours!"
             size="lg"
           />

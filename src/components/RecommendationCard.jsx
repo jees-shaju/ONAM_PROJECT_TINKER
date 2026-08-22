@@ -7,14 +7,19 @@ import { sound } from '../utils/sound';
 
 export function RecommendationCard({ onSelectInterests }) {
   const { getNextRecommendation, formattedTimeRemaining, currentLocation, userInterests, completedMemories, setActiveJourney } = useApp();
+  const [excludedIds, setExcludedIds] = useState([]);
+  const [recommendation, setRecommendation] = useState(() => getNextRecommendation([]));
+  const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
   const [scanStepText, setScanStepText] = useState('');
-  const [recommendation, setRecommendation] = useState(() => getNextRecommendation());
-  const navigate = useNavigate();
 
   const handleFindNextMemory = () => {
     sound.playChime();
     setIsScanning(true);
+
+    const currentId = recommendation?.id;
+    const nextExcluded = currentId ? [...excludedIds, currentId] : excludedIds;
+    setExcludedIds(nextExcluded);
 
     const steps = [
       '🔍 Scanning nearby celebrations in Thrissur & Kochi...',
@@ -26,15 +31,15 @@ export function RecommendationCard({ onSelectInterests }) {
       setTimeout(() => {
         sound.playChendaBeat();
         setScanStepText(text);
-      }, (index + 1) * 600);
+      }, (index + 1) * 350);
     });
 
     setTimeout(() => {
-      const rec = getNextRecommendation();
+      const rec = getNextRecommendation(nextExcluded);
       setRecommendation(rec);
       setIsScanning(false);
       sound.playCelebration();
-    }, 2400);
+    }, 1400);
   };
 
   const handleTakeMeThere = () => {

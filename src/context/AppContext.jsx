@@ -217,11 +217,12 @@ export function AppProvider({ children }) {
   };
 
   // Get current recommendation
-  const getNextRecommendation = () => {
+  const getNextRecommendation = (excludedIds = []) => {
     const completedIds = completedMemories.map(m => m.id);
     return getNextMemoryRecommendation({
       userInterests,
       completedExperienceIds: completedIds,
+      excludedIds,
       currentLocation,
       timeRemainingMins
     });

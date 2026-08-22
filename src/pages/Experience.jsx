@@ -63,7 +63,6 @@ export function Experience() {
         {/* Maveli Character Visual Companion */}
         <div className="md:col-span-1 flex justify-center">
           <Maveli
-            expression={selectedChoice ? 'happy' : 'curious'}
             message="Looks like I arrived at the right time! What do you want to discover here?"
             size="lg"
           />

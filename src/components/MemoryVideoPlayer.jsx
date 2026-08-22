@@ -130,9 +130,13 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
     return () => clearInterval(interval);
   }, [isOpen, isPlaying]);
 
-  // Audio beats
+  // Audio beats — only fire when the whole-second value changes (not every 100ms tick)
+  const prevSecRef = useRef(-1);
   useEffect(() => {
-    if (isOpen && isPlaying && !isMuted && Math.floor(progress) % 2 === 0 && Math.floor(progress) !== 10) {
+    if (!isOpen || !isPlaying || isMuted) return;
+    const sec = Math.floor(progress);
+    if (sec !== prevSecRef.current && sec % 2 === 0 && sec < 10) {
+      prevSecRef.current = sec;
       sound.playChendaBeat();
     }
   }, [progress, isPlaying, isOpen, isMuted]);
@@ -195,8 +199,6 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
     return () => cancelAnimationFrame(animationFrameId);
   }, [isOpen, isPlaying, scene]);
 
-  if (!isOpen) return null;
-
   const handleReplay = () => {
     sound.playPop();
     setProgress(0);
@@ -205,11 +207,14 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
 
   const timeDisplay = () => {
     const secs = Math.floor(progress);
-    return `00:0${secs} / 00:10`;
+    const padded = secs < 10 ? `0${secs}` : `${secs}`;
+    return `00:${padded} / 00:10`;
   };
 
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}

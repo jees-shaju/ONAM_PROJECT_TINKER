@@ -71,9 +71,9 @@ export function DiscoveryPopup({ discovery, onDiscover, onKeepGoing }) {
               What should Maveli do?
             </span>
             <div className="space-y-2 mb-6">
-              {discovery.interactiveChoices.map((choice) => (
+              {(discovery.choices || discovery.interactiveChoices || []).map((choice) => (
                 <button
-                  key={choice.id}
+                  key={choice.id || choice.text}
                   onClick={() => handleChoice(choice)}
                   className="w-full text-left p-2.5 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/80 border border-gold-500/20 hover:border-gold-400 text-xs text-cream-100 font-medium transition-all flex items-center justify-between group"
                 >

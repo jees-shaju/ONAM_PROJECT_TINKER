@@ -48,7 +48,6 @@ export function WhileYouWereAway({ onComplete }) {
         {/* Center Maveli Character */}
         <div className="my-4 flex justify-center">
           <Maveli
-            expression={stepIndex === 0 ? 'nostalgic' : stepIndex === 1 ? 'curious' : stepIndex === 2 ? 'surprised' : stepIndex === 3 ? 'thoughtful' : 'happy'}
             message={currentItem.maveliQuote}
             size="md"
           />
