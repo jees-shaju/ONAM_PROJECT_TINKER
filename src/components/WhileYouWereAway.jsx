@@ -50,6 +50,7 @@ export function WhileYouWereAway({ onComplete }) {
           <Maveli
             message={currentItem.maveliQuote}
             size="md"
+            showExpressionControls
           />
         </div>
 

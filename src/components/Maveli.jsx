@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sound } from '../utils/sound';
-import maveliImg from '../assets/maveli.png';
+import { useApp } from '../context/AppContext';
 
-export function Maveli({ message = null, size = 'md', className = '' }) {
+export const MAVELI_EXPRESSIONS = [
+  { id: 'happy', label: 'Happy', icon: '😊', image: '/happy.png' },
+  { id: 'thoughtful', label: 'Thoughtful', icon: '🤔', image: '/thoughtful.png' },
+  { id: 'curious', label: 'Curious', icon: '🧐', image: '/curious.png' },
+  { id: 'surprised', label: 'Surprised', icon: '😮', image: '/surprised.png' },
+  { id: 'amused', label: 'Amused', icon: '😄', image: '/amused.png' },
+];
+
+export function Maveli({ message = null, size = 'md', className = '', showExpressionControls = false }) {
   const [showTooltip, setShowTooltip] = useState(true);
   const [floatingIcons, setFloatingIcons] = useState([]);
+  const { maveliExpression, setMaveliExpression } = useApp();
+  const selectedExpression = MAVELI_EXPRESSIONS.find(item => item.id === maveliExpression) || MAVELI_EXPRESSIONS[0];
+  const nextExpression = MAVELI_EXPRESSIONS[(MAVELI_EXPRESSIONS.findIndex(item => item.id === selectedExpression.id) + 1) % MAVELI_EXPRESSIONS.length];
 
   const handleMaveliClick = () => {
     sound.playPop();
@@ -69,7 +80,11 @@ export function Maveli({ message = null, size = 'md', className = '' }) {
 
       {/* 3D Maveli Character Standalone */}
       <motion.div
-        animate={{ y: [0, -10, 0] }}
+        animate={{
+          y: [0, -10, 0],
+          rotate: maveliExpression === 'surprised' ? [0, -2, 2, 0] : maveliExpression === 'amused' ? [0, 2, -2, 0] : 0,
+          scale: maveliExpression === 'surprised' ? [1, 1.03, 1] : 1,
+        }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         whileHover={{ scale: 1.08, rotate: 1 }}
         whileTap={{ scale: 0.92 }}
@@ -81,11 +96,32 @@ export function Maveli({ message = null, size = 'md', className = '' }) {
 
         {/* Transparent 3D Character Image */}
         <img
-          src={maveliImg}
-          alt="King Maveli"
-          className={`${imageHeights} w-auto object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_20px_35px_rgba(245,158,11,0.5)] transition-all duration-300 relative z-10`}
+          key={selectedExpression.id}
+          src={selectedExpression.image}
+          alt={`King Maveli feeling ${selectedExpression.label.toLowerCase()}`}
+          className={`${imageHeights} w-auto object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.6)] group-hover:drop-shadow-[0_20px_35px_rgba(245,158,11,0.5)] transition-all duration-300 relative z-10`}
         />
       </motion.div>
+
+      <div className="mt-3 flex flex-col items-center gap-2 relative z-30">
+        <span className="text-[11px] font-black uppercase tracking-widest text-gold-300">
+          {selectedExpression.icon} {selectedExpression.label}
+        </span>
+
+        {showExpressionControls && (
+          <button
+            type="button"
+            onClick={() => {
+              sound.playPop();
+              setMaveliExpression(nextExpression.id);
+            }}
+            className="px-4 py-2 rounded-full bg-gold-500 text-emerald-950 border border-gold-300 shadow-md hover:bg-gold-400 font-black text-xs transition-all"
+            aria-label={`Change Maveli expression to ${nextExpression.label}`}
+          >
+            CHANGE EXPRESSION · {selectedExpression.label} {selectedExpression.icon}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

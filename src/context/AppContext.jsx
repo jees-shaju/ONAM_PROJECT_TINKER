@@ -67,7 +67,37 @@ export function AppProvider({ children }) {
     ];
   });
 
+  // Hydrate the browser cache from the persistent API, migrating local memories once.
+  useEffect(() => {
+    const loadMemories = async () => {
+      try {
+        const response = await fetch('/api/memories');
+        if (!response.ok) throw new Error(`Memory API returned ${response.status}`);
+        const remoteMemories = await response.json();
+
+        if (remoteMemories.length > 0) {
+          setCompletedMemories(remoteMemories);
+          return;
+        }
+
+        const localMemories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_MEMORIES) || '[]');
+        for (const memory of localMemories) {
+          await fetch('/api/memories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(memory),
+          });
+        }
+      } catch (e) {
+        console.warn('Memory API unavailable; using local memory vault.', e);
+      }
+    };
+
+    loadMemories();
+  }, []);
+
   const [currentLocation, setCurrentLocation] = useState('Thrissur');
+  const [maveliExpression, setMaveliExpression] = useState('happy');
   const [timeRemainingMins, setTimeRemainingMins] = useState(1320); // 22 hours
   const [activeJourney, setActiveJourney] = useState(null);
   const [discoveredDetours, setDiscoveredDetours] = useState([]);
@@ -127,6 +157,7 @@ export function AppProvider({ children }) {
   const removeMemory = (memId) => {
     sound.playPop();
     setCompletedMemories(prev => prev.filter(m => m.id !== memId));
+    fetch(`/api/memories/${encodeURIComponent(memId)}`, { method: 'DELETE' }).catch(() => {});
     notify('Memory deleted from vault 🗑️');
   };
 
@@ -166,6 +197,11 @@ export function AppProvider({ children }) {
     };
 
     setCompletedMemories(prev => [newMemory, ...prev]);
+    fetch('/api/memories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMemory),
+    }).catch(() => {});
     notify(`🌼 Memory Saved to Vault: "${exp.title}"!`);
   };
 
@@ -192,6 +228,11 @@ export function AppProvider({ children }) {
     };
 
     setCompletedMemories(prev => [newMemory, ...prev]);
+    fetch('/api/memories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMemory),
+    }).catch(() => {});
     notify(`✨ Detour Memory Saved: "${detour.title}"!`);
   };
 
@@ -200,6 +241,7 @@ export function AppProvider({ children }) {
     if (window.confirm('Are you sure you want to clear your current Onam memory vault?')) {
       setCompletedMemories([]);
       localStorage.removeItem(LOCAL_STORAGE_KEY_MEMORIES);
+      fetch('/api/memories', { method: 'DELETE' }).catch(() => {});
       notify('Memory vault reset successfully.');
     }
   };
@@ -246,6 +288,8 @@ export function AppProvider({ children }) {
       completedMemories,
       currentLocation,
       setCurrentLocation,
+      maveliExpression,
+      setMaveliExpression,
       timeRemainingMins,
       formattedTimeRemaining,
       activeJourney,

@@ -63,6 +63,7 @@ The core challenge: **"How can Maveli decide what is actually worth experiencing
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
 - **Audio & FX**: Web Audio API Synthesizer
+- **Memory Backend**: Express API with a file-backed JSON vault
 
 ---
 
@@ -84,13 +85,17 @@ Make sure you have Node.js (v18+) installed.
    npm install --legacy-peer-deps
    ```
 
-3. **Start the local development server**:
+3. **Start the frontend and memory backend together**:
    ```bash
-   npm run dev
+   npm run dev:full
    ```
 
 4. **Open in browser**:
    Navigate to `http://localhost:5173/`
+
+   Memories are stored by the API in `server/memories.json`. Completing an experience or detour adds it automatically; deleting a memory or resetting the vault removes it from the backend too.
+
+   To run the services separately, use `npm run server` and `npm run dev` in two terminals.
 
 5. **Build for production**:
    ```bash

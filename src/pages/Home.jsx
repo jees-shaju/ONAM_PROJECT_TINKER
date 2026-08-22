@@ -111,6 +111,7 @@ export function Home() {
           <Maveli
             message="Welcome! Exploring all 14 districts across Kerala in 24 hours!"
             size="lg"
+            showExpressionControls
           />
         </div>
 
