@@ -8,8 +8,8 @@ import { sound } from '../utils/sound';
 
 const AppContext = createContext();
 
-const LOCAL_STORAGE_KEY_MEMORIES = 'maveli_onam_memories_vault_v2';
-const LOCAL_STORAGE_KEY_MYDAY = 'maveli_my_day_plan_v2';
+const LOCAL_STORAGE_KEY_MEMORIES = 'maveli_onam_memories_vault_v3';
+const LOCAL_STORAGE_KEY_MYDAY = 'maveli_my_day_plan_v3';
 
 // 10 Live Kerala Current Affairs Stories
 export const KERALA_LIVE_NEWS = [
@@ -25,9 +25,9 @@ export const KERALA_LIVE_NEWS = [
 
 export function AppProvider({ children }) {
   const [userInterests, setUserInterests] = useState(['People', 'Food', 'Culture', 'Modern Kerala', 'Nature', 'Music']);
-  const [selectedDistrict, setSelectedDistrict] = useState('All'); // 'All' or specific district name
+  const [selectedDistrict, setSelectedDistrict] = useState('All');
 
-  // Default 24-hour itinerary starting with initial experiences
+  // Default 24-hour itinerary
   const [myDayExperiences, setMyDayExperiences] = useState(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY_MYDAY);
@@ -43,7 +43,7 @@ export function AppProvider({ children }) {
     ];
   });
 
-  // Persistent Unlimited Memories Vault
+  // Persistent Memory Vault (survives web page refreshes and browser restarts)
   const [completedMemories, setCompletedMemories] = useState(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_KEY_MEMORIES);
@@ -68,15 +68,14 @@ export function AppProvider({ children }) {
   });
 
   const [currentLocation, setCurrentLocation] = useState('Thrissur');
-  // 24-Hour Countdown scheme: 1440 minutes = 24 hours
-  const [timeRemainingMins, setTimeRemainingMins] = useState(1320); // 22 hours remaining out of 24h
+  const [timeRemainingMins, setTimeRemainingMins] = useState(1320); // 22 hours
   const [activeJourney, setActiveJourney] = useState(null);
   const [discoveredDetours, setDiscoveredDetours] = useState([]);
   const [introDismissed, setIntroDismissed] = useState(false);
   const [isDayFinished, setIsDayFinished] = useState(false);
   const [activeNotification, setActiveNotification] = useState(null);
 
-  // Sync My Day to LocalStorage
+  // Sync My Day to LocalStorage Backend
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY_MYDAY, JSON.stringify(myDayExperiences));
@@ -85,7 +84,7 @@ export function AppProvider({ children }) {
     }
   }, [myDayExperiences]);
 
-  // Sync Memories to LocalStorage Backend Vault
+  // Sync Memories to Persistent Vault Backend (survives refreshes!)
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY_MEMORIES, JSON.stringify(completedMemories));
@@ -124,6 +123,13 @@ export function AppProvider({ children }) {
     notify(`Removed experience from itinerary.`);
   };
 
+  // Delete individual memory from persistent vault
+  const removeMemory = (memId) => {
+    sound.playPop();
+    setCompletedMemories(prev => prev.filter(m => m.id !== memId));
+    notify('Memory deleted from vault 🗑️');
+  };
+
   // Optimize day itinerary across 24h
   const optimizeDay = () => {
     sound.playChime();
@@ -132,26 +138,19 @@ export function AppProvider({ children }) {
     notify(result.message);
   };
 
-  // Complete an experience & save memory to permanent vault (Unlimited storage)
+  // Complete an experience & save memory to permanent vault
   const completeExperience = (expId, choiceSelected = null) => {
     sound.playCelebration();
     const exp = EXPERIENCES.find(e => e.id === expId) || myDayExperiences.find(e => e.id === expId);
     if (!exp) return;
 
-    // Mark completed
     setMyDayExperiences(prev => prev.map(item => item.id === expId ? { ...item, completed: true } : item));
-
-    // Deduct duration
     setTimeRemainingMins(prev => Math.max(0, prev - exp.duration));
-
-    // Update location
     if (exp.district) setCurrentLocation(exp.district);
 
-    // Get current 24-hour formatted time (e.g. 14:35)
     const now = new Date();
     const time24h = `${now.getHours() < 10 ? '0' : ''}${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
 
-    // Create persistent memory object
     const newMemory = {
       id: `mem-${Date.now()}`,
       title: exp.title,
@@ -228,7 +227,7 @@ export function AppProvider({ children }) {
     });
   };
 
-  // 24-Hour Time remaining formatted (e.g. "22h 15m (24-Hour Clock)")
+  // 24-Hour Time remaining formatted
   const formattedTimeRemaining = () => {
     const hours = Math.floor(timeRemainingMins / 60);
     const mins = timeRemainingMins % 60;
@@ -258,6 +257,7 @@ export function AppProvider({ children }) {
       activeNotification,
       addExperienceToDay,
       removeExperienceFromDay,
+      removeMemory,
       optimizeDay,
       completeExperience,
       completeDetourDiscovery,

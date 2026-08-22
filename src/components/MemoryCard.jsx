@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flower2, MapPin, Clock, Sparkles, X, Quote } from 'lucide-react';
+import { Flower2, MapPin, Clock, Sparkles, X, Quote, Trash2 } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 import { sound } from '../utils/sound';
 
-export function MemoryCard({ memory }) {
+export function MemoryCard({ memory, onDelete }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { removeMemory } = useApp();
 
   const handleOpen = () => {
     sound.playPop();
     setIsOpen(true);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm(`Delete "${memory.title}" from your memory vault?`)) {
+      removeMemory(memory.id);
+      if (onDelete) onDelete(memory.id);
+    }
   };
 
   return (
@@ -24,7 +34,16 @@ export function MemoryCard({ memory }) {
           style={{ backgroundColor: memory.color || '#F59E0B' }}
         />
 
-        <div className="flex items-center justify-between gap-2 mb-2">
+        {/* Delete Button on Card Hover */}
+        <button
+          onClick={handleDelete}
+          className="absolute top-3 right-3 z-30 p-1.5 rounded-full bg-emerald-950/80 hover:bg-red-600 text-cream-300 hover:text-white border border-gold-500/30 opacity-70 hover:opacity-100 transition-all shadow-md"
+          title="Remove memory from vault"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+
+        <div className="flex items-center justify-between gap-2 mb-2 pr-8">
           <span className="flex items-center gap-1.5 text-xs font-black text-gold-300 uppercase tracking-wider">
             <Flower2 className="w-3.5 h-3.5" style={{ color: memory.color || '#F59E0B' }} />
             <span>{memory.district || 'Kerala'}</span>
@@ -34,7 +53,7 @@ export function MemoryCard({ memory }) {
           </span>
         </div>
 
-        <h3 className="text-lg font-serif font-bold text-cream-50 group-hover:text-gold-300 transition-colors mb-2">
+        <h3 className="text-lg font-serif font-bold text-cream-50 group-hover:text-gold-300 transition-colors mb-2 pr-4">
           {memory.title}
         </h3>
 
@@ -114,12 +133,22 @@ export function MemoryCard({ memory }) {
                 </div>
               )}
 
-              <button
-                onClick={() => setIsOpen(false)}
-                className="w-full mt-6 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 text-emerald-950 font-black text-xs shadow-md"
-              >
-                CLOSE MEMORY
-              </button>
+              <div className="flex items-center gap-3 mt-6">
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-500/30 font-bold text-xs flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>DELETE MEMORY</span>
+                </button>
+
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-gold-500 to-amber-600 text-emerald-950 font-black text-xs shadow-md"
+                >
+                  CLOSE
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
