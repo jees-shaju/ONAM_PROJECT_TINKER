@@ -91,11 +91,19 @@ Make sure you have Node.js (v18+) installed.
    ```
 
 4. **Open in browser**:
-   Navigate to `http://localhost:5173/`
+   Navigate to `http://localhost:5173/` on the laptop. Vite also prints a `Network` URL; open that URL on a phone connected to the same Wi-Fi network.
 
    Memories are stored by the API in `server/memories.json`. Completing an experience or detour adds it automatically; deleting a memory or resetting the vault removes it from the backend too.
 
    To run the services separately, use `npm run server` and `npm run dev` in two terminals.
+
+### Test on a phone
+
+1. Connect the phone and computer to the same Wi-Fi network.
+2. Run `npm run dev:full`.
+3. Open the printed `Network` URL on the phone.
+
+The phone can also open the game at `http://YOUR-COMPUTER-IP:5173/maveli-run.html`. Browser camera access on a phone generally requires HTTPS; use `localhost` for desktop camera testing or an HTTPS tunnel for mobile camera testing.
 
 5. **Build for production**:
    ```bash

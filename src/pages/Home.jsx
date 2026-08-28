@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp, KERALA_LIVE_NEWS } from '../context/AppContext';
 import { Maveli } from '../components/Maveli';
+import { CameraCapture } from '../components/CameraCapture';
 import { RecommendationCard } from '../components/RecommendationCard';
 import { InvitationCard } from '../components/InvitationCard';
 import { InterestSelectorModal } from '../components/InterestSelectorModal';
 import { DistrictSelectorModal, KERALA_14_DISTRICTS } from '../components/DistrictSelectorModal';
 import { INVITATIONS } from '../data/invitations';
 import { KERALA_CHANGES } from '../data/whatChanged';
-import { Sparkles, MapPin, Clock, Calendar, Mail, ArrowRight, Heart, Newspaper, Radio, Compass, Film } from 'lucide-react';
+import { Sparkles, MapPin, Clock, Calendar, Mail, ArrowRight, Heart, Newspaper, Radio, Compass, Film, Gamepad2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { sound } from '../utils/sound';
 
 export function Home() {
-  const { formattedTimeRemaining, currentLocation, selectedDistrict, setSelectedDistrict, completedMemories, myDayExperiences, userInterests } = useApp();
+  const { formattedTimeRemaining, currentLocation, selectedDistrict, setSelectedDistrict, completedMemories, myDayExperiences, userInterests, savePhotoMemory } = useApp();
   const [isInterestsModalOpen, setIsInterestsModalOpen] = useState(false);
   const [isDistrictModalOpen, setIsDistrictModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -113,6 +114,7 @@ export function Home() {
             size="lg"
             showExpressionControls
           />
+          <CameraCapture onSave={savePhotoMemory} />
         </div>
 
       </div>
@@ -268,6 +270,28 @@ export function Home() {
           ))}
         </div>
       </div>
+
+      {/* Maveli Run Game */}
+      <section className="glass-panel-gold rounded-3xl p-6 sm:p-8 border border-gold-500/30 shadow-2xl relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gold-500/20 border border-gold-400/40 flex items-center justify-center shrink-0">
+            <Gamepad2 className="w-7 h-7 text-gold-300" />
+          </div>
+          <div>
+            <span className="text-xs font-black tracking-widest text-gold-400 uppercase">Onam Arcade</span>
+            <h2 className="text-2xl sm:text-3xl font-serif font-black text-cream-50">Maveli Run</h2>
+            <p className="text-xs sm:text-sm text-cream-200/80 mt-1">Run through Kerala, dodge obstacles, and chase your next celebration.</p>
+          </div>
+        </div>
+
+        <a
+          href="/maveli-run.html"
+          className="shrink-0 px-6 py-3 rounded-full bg-gradient-to-r from-gold-500 via-amber-500 to-terracotta-500 hover:from-gold-400 hover:to-amber-500 text-emerald-950 font-black text-sm shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
+        >
+          <Gamepad2 className="w-4 h-4" />
+          <span>PLAY MAVELI RUN</span>
+        </a>
+      </section>
 
       {/* Interest Selector Modal */}
       <InterestSelectorModal

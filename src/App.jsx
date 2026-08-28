@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { Navbar } from './components/Navbar';
@@ -13,8 +13,63 @@ import { Memories } from './pages/Memories';
 import { Experience } from './pages/Experience';
 import { motion, AnimatePresence } from 'framer-motion';
 
+function EntryVideo({ onComplete }) {
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  const toggleMute = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+    if (!video.muted) await video.play().catch(() => {});
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black flex items-center justify-center">
+      {!hasError && (
+        <video
+          ref={videoRef}
+          src="/entry.mp4"
+          autoPlay
+          muted
+          playsInline
+          onEnded={onComplete}
+          onError={() => setHasError(true)}
+          className="w-full h-full object-contain"
+        />
+      )}
+
+      <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-3 px-4">
+        {!hasError && (
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="px-4 py-2 rounded-full bg-black/70 text-white border border-white/30 text-xs font-bold hover:bg-black/90 transition-all"
+          >
+            {isMuted ? '🔇 UNMUTE' : '🔊 MUTE'}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onComplete}
+          className="px-4 py-2 rounded-full bg-gold-500 text-emerald-950 text-xs font-black hover:bg-gold-400 transition-all"
+        >
+          {hasError ? 'CONTINUE TO MAVELI' : 'SKIP INTRO'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function AppContent() {
   const { introDismissed, setIntroDismissed, isDayFinished, activeNotification } = useApp();
+  const [entryVideoFinished, setEntryVideoFinished] = useState(false);
+
+  if (!entryVideoFinished) {
+    return <EntryVideo onComplete={() => setEntryVideoFinished(true)} />;
+  }
 
   return (
     <div className="min-h-screen bg-emerald-950 text-cream-50 flex flex-col font-sans relative selection:bg-gold-500 selection:text-emerald-950">

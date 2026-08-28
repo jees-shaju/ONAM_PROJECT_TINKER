@@ -4,12 +4,14 @@ import { useApp } from '../context/AppContext';
 import { MapPin, Clock, CheckCircle2, Plus, Sparkles, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { sound } from '../utils/sound';
+import { getScenarioImages } from '../data/scenarioImages';
 
 export function ExperienceCard({ experience, onSelectDetails }) {
   const { addExperienceToDay, myDayExperiences, setActiveJourney } = useApp();
   const navigate = useNavigate();
 
   const isAdded = myDayExperiences.some(item => item.id === experience.id);
+  const scenarioImages = getScenarioImages(experience.district);
 
   const handleStartJourney = (e) => {
     e.stopPropagation();
@@ -29,6 +31,8 @@ export function ExperienceCard({ experience, onSelectDetails }) {
       onClick={() => onSelectDetails && onSelectDetails(experience)}
       className="glass-card rounded-2xl p-5 border border-gold-500/20 hover:border-gold-400/50 transition-all cursor-pointer flex flex-col justify-between relative group overflow-hidden"
     >
+      <img src={scenarioImages.hero} alt={`${experience.title} in ${experience.location}`} className="w-full aspect-video object-cover rounded-xl mb-4 border border-gold-500/20" />
+
       {/* Top Banner & Badges */}
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">

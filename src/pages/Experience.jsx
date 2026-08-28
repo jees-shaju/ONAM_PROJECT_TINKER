@@ -5,6 +5,7 @@ import { useApp } from '../context/AppContext';
 import { Maveli } from '../components/Maveli';
 import { Sparkles, MapPin, Clock, ArrowRight, CheckCircle2, Heart } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { getScenarioImages } from '../data/scenarioImages';
 
 export function Experience() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export function Experience() {
   const { completeExperience, myDayExperiences } = useApp();
 
   const experience = EXPERIENCES.find(e => e.id === id) || EXPERIENCES[0];
+  const scenarioImages = getScenarioImages(experience.district);
   const [selectedChoice, setSelectedChoice] = useState(null);
 
   const handleChoice = (choice) => {
@@ -58,6 +60,10 @@ export function Experience() {
       </div>
 
       {/* Main Encounter Area: Animated Scene & Maveli */}
+      <div className="rounded-3xl overflow-hidden border border-gold-500/30 shadow-xl">
+        <img src={scenarioImages.hero} alt={`${experience.title} at ${experience.location}`} className="w-full aspect-video object-cover" />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
         
         {/* Maveli Character Visual Companion */}

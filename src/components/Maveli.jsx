@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Camera } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { useApp } from '../context/AppContext';
 
@@ -14,7 +15,7 @@ export const MAVELI_EXPRESSIONS = [
 export function Maveli({ message = null, size = 'md', className = '', showExpressionControls = false }) {
   const [showTooltip, setShowTooltip] = useState(true);
   const [floatingIcons, setFloatingIcons] = useState([]);
-  const { maveliExpression, setMaveliExpression } = useApp();
+  const { maveliExpression, setMaveliExpression, savePhotoMemory } = useApp();
   const selectedExpression = MAVELI_EXPRESSIONS.find(item => item.id === maveliExpression) || MAVELI_EXPRESSIONS[0];
   const nextExpression = MAVELI_EXPRESSIONS[(MAVELI_EXPRESSIONS.findIndex(item => item.id === selectedExpression.id) + 1) % MAVELI_EXPRESSIONS.length];
 
@@ -109,17 +110,29 @@ export function Maveli({ message = null, size = 'md', className = '', showExpres
         </span>
 
         {showExpressionControls && (
-          <button
-            type="button"
-            onClick={() => {
-              sound.playPop();
-              setMaveliExpression(nextExpression.id);
-            }}
-            className="px-4 py-2 rounded-full bg-gold-500 text-emerald-950 border border-gold-300 shadow-md hover:bg-gold-400 font-black text-xs transition-all"
-            aria-label={`Change Maveli expression to ${nextExpression.label}`}
-          >
-            CHANGE EXPRESSION · {selectedExpression.label} {selectedExpression.icon}
-          </button>
+          <div className="flex flex-wrap justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                sound.playPop();
+                setMaveliExpression(nextExpression.id);
+              }}
+              className="px-4 py-2 rounded-full bg-gold-500 text-emerald-950 border border-gold-300 shadow-md hover:bg-gold-400 font-black text-xs transition-all"
+              aria-label={`Change Maveli expression to ${nextExpression.label}`}
+            >
+              CHANGE EXPRESSION · {selectedExpression.label} {selectedExpression.icon}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sound.playChime();
+                savePhotoMemory(selectedExpression);
+              }}
+              className="px-4 py-2 rounded-full bg-emerald-900/80 text-gold-300 border border-gold-400/40 shadow-md hover:bg-emerald-800 font-black text-xs transition-all flex items-center gap-1.5"
+            >
+              <Camera className="w-3.5 h-3.5" /> SAVE PHOTO
+            </button>
+          </div>
         )}
       </div>
     </div>

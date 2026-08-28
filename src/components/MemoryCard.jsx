@@ -57,6 +57,14 @@ export function MemoryCard({ memory, onDelete }) {
           {memory.title}
         </h3>
 
+        {memory.photoUrl && (
+          <img
+            src={memory.photoUrl}
+            alt={`${memory.title} photo`}
+            className="w-full h-40 object-contain rounded-xl bg-emerald-950/60 border border-gold-500/20 mb-3"
+          />
+        )}
+
         <p className="text-xs text-cream-200/90 italic line-clamp-2 mb-3">
           "{memory.memoryQuote}"
         </p>

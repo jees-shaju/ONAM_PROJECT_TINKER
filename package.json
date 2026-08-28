@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "dev:full": "concurrently \"npm run server\" \"vite --host 0.0.0.0\"",
+    "dev:mobile": "npm run dev:full",
     "build": "vite build",
     "preview": "vite preview"
   },

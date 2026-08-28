@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, RotateCcw, X, Volume2, VolumeX, Sparkles, Film, CheckCircle2, MapPin } from 'lucide-react';
 import { sound } from '../utils/sound';
 import maveliImg from '../assets/maveli.png';
+import { getDistrictMusic } from '../data/districtMusic';
 
 // District-specific visual scenes for the 10-second memory video
 const DISTRICT_SCENES = {
@@ -97,6 +98,7 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
   const [progress, setProgress] = useState(0); // 0 to 10 seconds
   const [isMuted, setIsMuted] = useState(false);
   const canvasRef = useRef(null);
+  const musicRef = useRef(null);
 
   const scene = DISTRICT_SCENES[district] || {
     bgColors: ['#064E3B', '#022C22', '#011710'],
@@ -110,8 +112,38 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
     if (isOpen) {
       setProgress(0);
       setIsPlaying(true);
+      setIsMuted(false);
     }
   }, [isOpen]);
+
+  // Use one district-specific track for the lifetime of each player session.
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const music = new Audio(getDistrictMusic(district) || '/audio/onam-music.mp3');
+    music.loop = true;
+    music.preload = 'auto';
+    music.volume = 0.5;
+    musicRef.current = music;
+
+    return () => {
+      music.pause();
+      music.currentTime = 0;
+      musicRef.current = null;
+    };
+  }, [isOpen, district]);
+
+  useEffect(() => {
+    const music = musicRef.current;
+    if (!music || !isOpen) return;
+
+    music.muted = isMuted;
+    if (isPlaying) {
+      music.play().catch(() => {});
+    } else {
+      music.pause();
+    }
+  }, [isOpen, isPlaying, isMuted]);
 
   // 10-second video playback
   useEffect(() => {
@@ -129,17 +161,6 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
     }
     return () => clearInterval(interval);
   }, [isOpen, isPlaying]);
-
-  // Audio beats — only fire when the whole-second value changes (not every 100ms tick)
-  const prevSecRef = useRef(-1);
-  useEffect(() => {
-    if (!isOpen || !isPlaying || isMuted) return;
-    const sec = Math.floor(progress);
-    if (sec !== prevSecRef.current && sec % 2 === 0 && sec < 10) {
-      prevSecRef.current = sec;
-      sound.playChendaBeat();
-    }
-  }, [progress, isPlaying, isOpen, isMuted]);
 
   // Canvas visualizer with district-specific colors
   useEffect(() => {
@@ -203,6 +224,10 @@ export function MemoryVideoPlayer({ isOpen, onClose, memoryTitle, district, cate
     sound.playPop();
     setProgress(0);
     setIsPlaying(true);
+    if (musicRef.current) {
+      musicRef.current.currentTime = 0;
+      musicRef.current.play().catch(() => {});
+    }
   };
 
   const timeDisplay = () => {

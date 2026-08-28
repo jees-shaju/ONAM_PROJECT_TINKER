@@ -4,8 +4,8 @@ import { useApp } from '../context/AppContext';
 import { ON_THE_WAY_DISCOVERIES } from '../data/discoveries';
 import { EXPERIENCES } from '../data/experiences';
 import { getTravelScenario } from '../data/travelScenarios';
+import { getScenarioImages } from '../data/scenarioImages';
 import { DiscoveryPopup } from './DiscoveryPopup';
-import { MemoryVideoPlayer } from './MemoryVideoPlayer';
 import {
   BookOpen, CheckCircle2, Sparkles, Navigation, Compass,
   ZoomIn, ZoomOut, Layers, Eye, ScrollText, ChevronRight, Crown, Star,
@@ -78,11 +78,12 @@ export function KeralaMap() {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [mapMode, setMapMode] = useState('svg');
   const [isStreetViewOpen, setIsStreetViewOpen] = useState(false);
-  const [isVideoPlayerOpen, setIsVideoPlayerOpen] = useState(false);
+  const [isArrivalMusicPlaying, setIsArrivalMusicPlaying] = useState(false);
 
   // travelPhase: 'idle' | 'moving' | 'choice' | 'response' | 'arrived'
   const [travelPhase, setTravelPhase] = useState('idle');
   const [activeStoryMoment, setActiveStoryMoment] = useState(null);
+  const [selectedScenarioImage, setSelectedScenarioImage] = useState(null);
   const [storyMomentsShown, setStoryMomentsShown] = useState([]);
   const [choiceResponse, setChoiceResponse] = useState(null);
   const [journeyLog, setJourneyLog] = useState([]);
@@ -159,14 +160,13 @@ export function KeralaMap() {
       if (destination?.district) {
         setCurrentLocation(destination.district);
       }
-      sound.playCelebration();
-      setIsVideoPlayerOpen(true);
     }
   }, [progress, isTraveling, travelPhase, storyMomentsShown, travelScenario, activeDetourPopup, destination, setCurrentLocation]);
 
   const handleStartJourney = () => {
     sound.playChime();
     setProgress(0);
+    setIsArrivalMusicPlaying(false);
     detourShownRef.current = false;
     setTravelPhase('moving');
     setIsTraveling(true);
@@ -180,6 +180,7 @@ export function KeralaMap() {
     sound.playCelebration();
     if (responseTimerRef.current) clearTimeout(responseTimerRef.current);
     setProgress(100);
+    setIsArrivalMusicPlaying(false);
     setIsTraveling(false);
     setActiveStoryMoment(null);
     setActiveDetourPopup(null);
@@ -193,6 +194,7 @@ export function KeralaMap() {
     sound.playPop();
     if (responseTimerRef.current) clearTimeout(responseTimerRef.current);
     setProgress(0);
+    setIsArrivalMusicPlaying(false);
     setIsTraveling(false);
     setTravelPhase('idle');
     setActiveStoryMoment(null);
@@ -216,6 +218,7 @@ export function KeralaMap() {
     setActiveJourney(expInDistrict);
     setSelectedDistrict(districtName);
     setProgress(0);
+    setIsArrivalMusicPlaying(false);
     setIsTraveling(false);
     setTravelPhase('idle');
     setActiveStoryMoment(null);
@@ -280,6 +283,7 @@ export function KeralaMap() {
 
   const districtList = Object.entries(DISTRICT_COORDS);
   const storyBeats = travelScenario?.travelTasks || [];
+  const scenarioImages = getScenarioImages(destination?.district);
   const movingTexts = [
     `The road to ${destination?.district} stretches before you. Maveli's royal entourage sets off under a golden morning sky...`,
     `Fields of green blur past. The air smells of jasmine and festival spices. You are getting closer...`,
@@ -553,6 +557,25 @@ export function KeralaMap() {
                 </div>
               </div>
               <div className="p-5 flex flex-col sm:flex-row gap-4">
+                {scenarioImages.tasks[activeStoryMoment.momentIndex ?? 0] && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedScenarioImage({
+                      src: scenarioImages.tasks[activeStoryMoment.momentIndex ?? 0],
+                      district: destination?.district,
+                      task: activeStoryMoment.task,
+                    })}
+                    className="w-full sm:w-44 shrink-0 text-left group"
+                    aria-label={`View ${destination?.district} travel scenario image larger`}
+                  >
+                    <img
+                      src={scenarioImages.tasks[activeStoryMoment.momentIndex ?? 0]}
+                      alt={`${destination?.district} journey story moment`}
+                      className="w-full aspect-video sm:aspect-square object-cover rounded-xl border border-gold-500/30 shadow-lg group-hover:border-gold-300 transition-colors"
+                    />
+                    <span className="block mt-1 text-[10px] text-gold-300 font-bold uppercase tracking-wide">View scenario image</span>
+                  </button>
+                )}
                 <motion.img src={maveliImg} alt="Maveli" animate={{ y: [0, -8, 0], rotate: [-1, 1, -1] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
                   className="w-14 h-20 object-contain filter drop-shadow-[0_0_16px_rgba(245,158,11,0.6)] mx-auto sm:mx-0" />
@@ -633,6 +656,12 @@ export function KeralaMap() {
                     </div>
                   )}
                   <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={() => setIsArrivalMusicPlaying(true)}
+                      className="px-4 py-2.5 rounded-xl bg-gold-500/20 hover:bg-gold-500/30 text-gold-300 border border-gold-400/40 text-xs font-black flex items-center justify-center gap-1.5 transition-all"
+                    >
+                      <span>♫</span> PLAY ARRIVAL MUSIC
+                    </button>
                     <button onClick={handleEnterExperience}
                       className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-gold-500 hover:scale-105 text-emerald-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all">
                       <Sparkles className="w-4 h-4" /> ENTER THE EXPERIENCE
@@ -649,6 +678,39 @@ export function KeralaMap() {
 
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {selectedScenarioImage && (
+          <motion.div
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedScenarioImage(null)}
+          >
+            <motion.div
+              className="relative w-full max-w-4xl rounded-2xl overflow-hidden border border-gold-400/60 bg-emerald-950 shadow-2xl"
+              initial={{ scale: 0.94, y: 12 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.94, y: 12 }}
+              onClick={event => event.stopPropagation()}
+            >
+              <img src={selectedScenarioImage.src} alt={`${selectedScenarioImage.district} travel scenario`} className="w-full max-h-[75vh] object-contain" />
+              <div className="p-4 border-t border-gold-500/20">
+                <span className="text-[10px] font-black tracking-widest text-gold-400 uppercase">{selectedScenarioImage.district} travel scenario</span>
+                <p className="text-sm text-cream-100 mt-1">{selectedScenarioImage.task}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedScenarioImage(null)}
+                className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-emerald-950/90 text-cream-100 border border-gold-400/50 text-xs font-bold"
+              >
+                CLOSE
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Street View Modal */}
       <AnimatePresence>
@@ -684,14 +746,14 @@ export function KeralaMap() {
         )}
       </AnimatePresence>
 
-      <MemoryVideoPlayer
-        isOpen={isVideoPlayerOpen}
-        onClose={() => setIsVideoPlayerOpen(false)}
-        memoryTitle={destination?.title}
-        district={destination?.district}
-        category={destination?.categories ? destination.categories[0] : 'Culture'}
-        description={travelScenario?.arrivalScene || destination?.description}
-      />
+      {travelPhase === 'arrived' && isArrivalMusicPlaying && (
+        <iframe
+          title="Arrival celebration music"
+          src="https://www.youtube.com/embed/VrrnflVEiMg?si=0hgkANHdKPlattTw&autoplay=1&loop=1&playlist=VrrnflVEiMg"
+          allow="autoplay; encrypted-media"
+          className="absolute w-px h-px opacity-0 pointer-events-none"
+        />
+      )}
 
       <AnimatePresence>
         {activeDetourPopup && (

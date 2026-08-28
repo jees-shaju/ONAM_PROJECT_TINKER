@@ -161,6 +161,31 @@ export function AppProvider({ children }) {
     notify('Memory deleted from vault 🗑️');
   };
 
+  // Save a Maveli expression photo to the persistent memory vault
+  const savePhotoMemory = (photo) => {
+    const newMemory = {
+      id: `photo-mem-${Date.now()}`,
+      title: `Maveli's ${photo.label} Expression`,
+      district: currentLocation,
+      categories: ['People', 'Photo'],
+      memoryQuote: `A ${photo.label.toLowerCase()} moment captured during Maveli's Kerala journey.`,
+      choiceMade: `Captured Maveli looking ${photo.label.toLowerCase()}.`,
+      choiceResponse: 'This expression was saved as a photo memory in the Onam vault.',
+      photoUrl: photo.image,
+      color: '#F59E0B',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+      year: 2026
+    };
+
+    setCompletedMemories(prev => [newMemory, ...prev]);
+    fetch('/api/memories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMemory),
+    }).catch(() => {});
+    notify(`📸 ${photo.label} photo saved to your memory vault!`);
+  };
+
   // Optimize day itinerary across 24h
   const optimizeDay = () => {
     sound.playChime();
@@ -303,6 +328,7 @@ export function AppProvider({ children }) {
       addExperienceToDay,
       removeExperienceFromDay,
       removeMemory,
+      savePhotoMemory,
       optimizeDay,
       completeExperience,
       completeDetourDiscovery,
