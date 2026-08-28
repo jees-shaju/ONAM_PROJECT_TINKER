@@ -5,6 +5,7 @@ import { ON_THE_WAY_DISCOVERIES } from '../data/discoveries';
 import { optimizeItinerary } from '../utils/optimizer';
 import { getNextMemoryRecommendation } from '../utils/recommender';
 import { sound } from '../utils/sound';
+import { apiUrl } from '../utils/api';
 
 const AppContext = createContext();
 
@@ -71,7 +72,7 @@ export function AppProvider({ children }) {
   useEffect(() => {
     const loadMemories = async () => {
       try {
-        const response = await fetch('/api/memories');
+        const response = await fetch(apiUrl('/api/memories'));
         if (!response.ok) throw new Error(`Memory API returned ${response.status}`);
         const remoteMemories = await response.json();
 
@@ -82,7 +83,7 @@ export function AppProvider({ children }) {
 
         const localMemories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_MEMORIES) || '[]');
         for (const memory of localMemories) {
-          await fetch('/api/memories', {
+          await fetch(apiUrl('/api/memories'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(memory),
@@ -157,7 +158,7 @@ export function AppProvider({ children }) {
   const removeMemory = (memId) => {
     sound.playPop();
     setCompletedMemories(prev => prev.filter(m => m.id !== memId));
-    fetch(`/api/memories/${encodeURIComponent(memId)}`, { method: 'DELETE' }).catch(() => {});
+    fetch(apiUrl(`/api/memories/${encodeURIComponent(memId)}`), { method: 'DELETE' }).catch(() => {});
     notify('Memory deleted from vault 🗑️');
   };
 
@@ -178,7 +179,7 @@ export function AppProvider({ children }) {
     };
 
     setCompletedMemories(prev => [newMemory, ...prev]);
-    fetch('/api/memories', {
+    fetch(apiUrl('/api/memories'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMemory),
@@ -222,7 +223,7 @@ export function AppProvider({ children }) {
     };
 
     setCompletedMemories(prev => [newMemory, ...prev]);
-    fetch('/api/memories', {
+    fetch(apiUrl('/api/memories'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMemory),
@@ -253,7 +254,7 @@ export function AppProvider({ children }) {
     };
 
     setCompletedMemories(prev => [newMemory, ...prev]);
-    fetch('/api/memories', {
+    fetch(apiUrl('/api/memories'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newMemory),
@@ -266,7 +267,7 @@ export function AppProvider({ children }) {
     if (window.confirm('Are you sure you want to clear your current Onam memory vault?')) {
       setCompletedMemories([]);
       localStorage.removeItem(LOCAL_STORAGE_KEY_MEMORIES);
-      fetch('/api/memories', { method: 'DELETE' }).catch(() => {});
+      fetch(apiUrl('/api/memories'), { method: 'DELETE' }).catch(() => {});
       notify('Memory vault reset successfully.');
     }
   };
