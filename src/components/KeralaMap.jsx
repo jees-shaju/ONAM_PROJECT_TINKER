@@ -671,6 +671,9 @@ export function KeralaMap() {
                       <RotateCcw className="w-3.5 h-3.5" /> EXPLORE ANOTHER DISTRICT
                     </button>
                   </div>
+                  <p className="mt-2 text-xs text-cream-200/60 italic">
+                    Arrival music: "Thiruvaavaniraavu" from "Jacobinte Swargarajyam"
+                  </p>
                 </div>
               </div>
             </motion.div>
