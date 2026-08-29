@@ -1,7 +1,19 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": ".*\\.html$",
+      "dest": "/$0"
+    }
+  ],
   "rewrites": [
     {
-      "source": "/((?!api/|.*\\.html$).*)",
+      "source": "/((?!api/|.*\\.html$|.*\\.js$|.*\\.css$|.*\\.json$|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$|.*\\.mp4$|.*\\.pdf$).*)",
       "destination": "/index.html"
     }
   ]
