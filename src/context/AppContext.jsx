@@ -68,29 +68,36 @@ export function AppProvider({ children }) {
     ];
   });
 
-  // Hydrate the browser cache from the persistent API, migrating local memories once.
+  // Prefer browser-local persistence so refreshes do not wipe saved memories.
+  // If the server API is available, merge remote memories in without overwriting
+  // the browser vault when the remote data is empty or unavailable.
   useEffect(() => {
     const loadMemories = async () => {
+      const localMemories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_MEMORIES) || '[]');
+      if (localMemories.length > 0) {
+        setCompletedMemories(localMemories);
+      }
+
       try {
         const response = await fetch(apiUrl('/api/memories'));
         if (!response.ok) throw new Error(`Memory API returned ${response.status}`);
         const remoteMemories = await response.json();
 
-        if (remoteMemories.length > 0) {
-          setCompletedMemories(remoteMemories);
+        if (!Array.isArray(remoteMemories) || remoteMemories.length === 0) {
           return;
         }
 
-        const localMemories = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY_MEMORIES) || '[]');
-        for (const memory of localMemories) {
-          await fetch(apiUrl('/api/memories'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(memory),
-          });
-        }
+        const mergedMemories = [
+          ...remoteMemories,
+          ...localMemories.filter(localMemory =>
+            !remoteMemories.some(remoteMemory => remoteMemory.id === localMemory.id)
+          )
+        ];
+
+        localStorage.setItem(LOCAL_STORAGE_KEY_MEMORIES, JSON.stringify(mergedMemories));
+        setCompletedMemories(mergedMemories);
       } catch (e) {
-        console.warn('Memory API unavailable; using local memory vault.', e);
+        console.warn('Memory API unavailable; keeping browser-local memory vault.', e);
       }
     };
 
