@@ -284,13 +284,16 @@ export function Home() {
           </div>
         </div>
 
-        <a
-          href="/maveli-run.html"
+        <button
+          type="button"
+          onClick={() => {
+            window.open('/maveli-run.html', '_blank', 'noopener,noreferrer');
+          }}
           className="shrink-0 px-6 py-3 rounded-full bg-gradient-to-r from-gold-500 via-amber-500 to-terracotta-500 hover:from-gold-400 hover:to-amber-500 text-emerald-950 font-black text-sm shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
         >
           <Gamepad2 className="w-4 h-4" />
           <span>PLAY MAVELI RUN</span>
-        </a>
+        </button>
       </section>
 
       {/* Interest Selector Modal */}
